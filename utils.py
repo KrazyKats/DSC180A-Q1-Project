@@ -5,6 +5,21 @@ import ot
 import scipy as sp
 
 def plot_3d_points_and_connections(points1, points2, G):
+    if points1.shape[0] != points2.shape[0]:
+        raise ValueError("Point clouds are not the same length")
+
+    if G.shape[0] != G.shape[1]:
+        raise ValueError("Matching matrix is not square")
+    
+    if G.shape[0] != points1.shape[0]:
+        raise ValueError("Matching matrix dimensions don't match point cloud dimensions")
+    
+    if np.count_nonzero(G) > points1.shape[0]:
+        raise ValueError("Matching has too many nonzero entries")
+    
+    if np.count_nonzero(G) < points1.shape[0]:
+        raise ValueError("Matching has too few nonzero entries")
+    
     # Ensure numpy arrays
     points1 = np.asarray(points1)
     points2 = np.asarray(points2)
