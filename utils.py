@@ -145,6 +145,12 @@ class DistanceProfile:
 
 #Quy-Dzu work
 
+"""
+Computes W(i,j) as defined in the equation, given precomputed distance matrices.
+
+We assume p = inf so all mappings are allowed.
+"""
+
 import numpy as np
 from ot import wasserstein_1d, emd
 
