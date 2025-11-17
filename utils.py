@@ -8,6 +8,11 @@ import scipy as sp
 import matplotlib.pyplot as plt
 
 def plot_3d_points_and_connections(points1, points2, G):
+    """
+    Given points1, points2, and G, plot the points and lines between matching points.
+    points1, points2: Nx3 arrays
+    G: NxN array
+    """
     if points1.shape[0] != points2.shape[0]:
         raise ValueError("Point clouds are not the same length")
 
@@ -32,7 +37,7 @@ def plot_3d_points_and_connections(points1, points2, G):
 
     # Plot first set of 3D points
     fig.add_trace(go.Scatter3d(
-        x=points1[:, 0], y=points1[:, 1], z=points1[:, 2],
+        x=points1[:, 2], y=points1[:, 1], z=points1[:, 0],
         mode='markers',
         marker=dict(size=5, color='blue'),
         name='Points 1'
@@ -40,7 +45,7 @@ def plot_3d_points_and_connections(points1, points2, G):
 
     # Plot second set of 3D points
     fig.add_trace(go.Scatter3d(
-        x=points2[:, 0], y=points2[:, 1], z=points2[:, 2],
+        x=points2[:, 2], y=points2[:, 1], z=points2[:, 0],
         mode='markers',
         marker=dict(size=5, color='red'),
         name='Points 2'
@@ -53,9 +58,9 @@ def plot_3d_points_and_connections(points1, points2, G):
                 p1 = points1[i]
                 p2 = points2[j]
                 fig.add_trace(go.Scatter3d(
-                    x=[p1[0], p2[0]],
+                    x=[p1[2], p2[2]],
                     y=[p1[1], p2[1]],
-                    z=[p1[2], p2[2]],
+                    z=[p1[0], p2[0]],
                     mode='lines',
                     line=dict(color='gray', width=2),
                     showlegend=False
