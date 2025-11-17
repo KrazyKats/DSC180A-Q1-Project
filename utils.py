@@ -155,6 +155,19 @@ class DistanceProfile:
                     distance_matrix[count][i, j] = np.linalg.norm(cp[i] - cp[j])
         return distance_matrix[0], distance_matrix[1]
 
+    def compute_L1_matrix(self):
+        n_source = self.source.shape[0]
+        n_target = self.target.shape[0]
+        distance_matrix = np.array([np.zeros((n_source, n_source)), np.zeros((n_target, n_target))])
+        count = -1
+        for cp in [self.source, self.target]:
+            count += 1
+            n = cp.shape[0]
+            for i in range(n):
+                for j in range(n):
+                    distance_matrix[count][i, j] = np.linalg.norm(cp[i] - cp[j], ord=1)
+        return distance_matrix[0], distance_matrix[1]
+
 
 #Quy-Dzu work
 
