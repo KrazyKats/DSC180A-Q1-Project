@@ -139,6 +139,16 @@ class LoadCloudPoint:
         source = self.point_cloud[idx_1].reshape(-1,3)
         target = self.point_cloud[idx_2].reshape(-1,3)
         return source, target
+    
+    def get_pointclouds_fixed_timestep(self, timestep, fixed_beginning_idx = None):
+        if fixed_beginning_idx == None:
+            idx_1 = np.random.choice(self.point_cloud.shape[0] - timestep)
+        else:
+            idx_1 = fixed_beginning_idx
+        idx_2 = idx_1 + timestep
+        source = self.point_cloud[idx_1].reshape(-1,3)
+        target = self.point_cloud[idx_2].reshape(-1,3)
+        return source, target
 
 class DistanceProfile:
     def __init__(self, source, target):
