@@ -7,7 +7,13 @@ import ot
 import scipy as sp
 import matplotlib.pyplot as plt
 
-def plot_3d_points_and_connections(points1, points2, G):
+def plot_3d_points_and_connections(points1, points2, G, switch_xz = True, color_incorrect = False):
+    """
+    Given points1, points2, and G, plot the points and lines between matching points. If switch_xz is true then this will switch the x and z coordinates before plotting (since by default in the mocap data the x is the vertical axis).
+    points1, points2: Nx3 arrays
+    G: NxN array
+    switch_xz: Boolean
+    """
     if points1.shape[0] != points2.shape[0]:
         raise ValueError("Point clouds are not the same length")
 
@@ -23,6 +29,13 @@ def plot_3d_points_and_connections(points1, points2, G):
     if np.count_nonzero(G) < points1.shape[0]:
         raise ValueError("Matching has too few nonzero entries")
 
+    if switch_xz:
+        x_ind = 2
+        z_ind = 0
+    else:
+        x_ind = 0
+        z_ind = 2
+
     # Ensure numpy arrays
     points1 = np.asarray(points1)
     points2 = np.asarray(points2)
@@ -32,7 +45,7 @@ def plot_3d_points_and_connections(points1, points2, G):
 
     # Plot first set of 3D points
     fig.add_trace(go.Scatter3d(
-        x=points1[:, 0], y=points1[:, 1], z=points1[:, 2],
+        x=points1[:, x_ind], y=points1[:, 1], z=points1[:, z_ind],
         mode='markers',
         marker=dict(size=5, color='blue'),
         name='Points 1'
@@ -40,7 +53,7 @@ def plot_3d_points_and_connections(points1, points2, G):
 
     # Plot second set of 3D points
     fig.add_trace(go.Scatter3d(
-        x=points2[:, 0], y=points2[:, 1], z=points2[:, 2],
+        x=points2[:, x_ind], y=points2[:, 1], z=points2[:, z_ind],
         mode='markers',
         marker=dict(size=5, color='red'),
         name='Points 2'
@@ -50,14 +63,17 @@ def plot_3d_points_and_connections(points1, points2, G):
     for i in range(G.shape[0]):
         for j in range(G.shape[1]):
             if G[i, j] != 0:
+                c = "gray"
+                if color_incorrect and i != j:
+                    c = "red"
                 p1 = points1[i]
                 p2 = points2[j]
                 fig.add_trace(go.Scatter3d(
-                    x=[p1[0], p2[0]],
+                    x=[p1[x_ind], p2[x_ind]],
                     y=[p1[1], p2[1]],
-                    z=[p1[2], p2[2]],
+                    z=[p1[z_ind], p2[z_ind]],
                     mode='lines',
-                    line=dict(color='gray', width=2),
+                    line=dict(color=c, width=2),
                     showlegend=False
                 ))
 
@@ -140,6 +156,19 @@ class DistanceProfile:
             for i in range(n):
                 for j in range(n):
                     distance_matrix[count][i, j] = np.linalg.norm(cp[i] - cp[j])
+        return distance_matrix[0], distance_matrix[1]
+
+    def compute_L1_matrix(self):
+        n_source = self.source.shape[0]
+        n_target = self.target.shape[0]
+        distance_matrix = np.array([np.zeros((n_source, n_source)), np.zeros((n_target, n_target))])
+        count = -1
+        for cp in [self.source, self.target]:
+            count += 1
+            n = cp.shape[0]
+            for i in range(n):
+                for j in range(n):
+                    distance_matrix[count][i, j] = np.linalg.norm(cp[i] - cp[j], ord=1)
         return distance_matrix[0], distance_matrix[1]
 
 
