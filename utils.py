@@ -270,6 +270,9 @@ def animate_point_cloud_matches(points1_list, points2_list, G_list, switch_xz=Tr
 
 class LoadCloudPoint:
     def __init__(self, filepath=None):
+        """
+        Load point cloud data from a CSV file. If no filepath is provided, randomly select one from the datasets/csv_files directory.
+        """
         if filepath == None:
             csv_dir = Path("datasets/csv_files")
             csv_list = sorted(csv_dir.glob("*.csv"))
@@ -279,8 +282,18 @@ class LoadCloudPoint:
 
         self.filepath = Path(filepath)
         self.point_cloud = pd.read_csv(filepath).to_numpy()
+        print(f"Loaded point cloud data from {self.filepath}, number of frames: {self.point_cloud.shape[0]}")
 
+    def get_entire_point_cloud(self):
+        """
+        Return the entire loaded point cloud data.
+        """
+        return self.point_cloud.reshape(self.point_cloud.shape[0], -1, 3)
+        
     def get_two_random_point_cloud(self):
+        """
+        Randomly select two point clouds from the first and second halves of the loaded data.
+        """
         idx_1 = np.random.choice(self.point_cloud.shape[0]//2)
         idx_2 = np.random.choice(self.point_cloud.shape[0]//2) + self.point_cloud.shape[0]//2
         source = self.point_cloud[idx_1].reshape(-1,3)
@@ -299,13 +312,40 @@ class LoadCloudPoint:
     
     def get_pointclouds_range(self, indices):
         return self.point_cloud[indices]
+    
+    def get_t_distant_point_cloud(self, t=500):
+        """
+        Select two point clouds that are t frames apart.
+        """
+        if t >= self.point_cloud.shape[0]:
+            raise ValueError(f"t is too large. There are {self.point_cloud.shape[0]} frames in this file.")
+        idx_1 = np.random.choice(self.point_cloud.shape[0]-t)
+        idx_2 = idx_1 + t
+        source = self.point_cloud[idx_1].reshape(-1,3)
+        target = self.point_cloud[idx_2].reshape(-1,3)
+        return source, target
+
+    def get_point_cloud_at_index(self, index):
+        """
+        Get the point cloud at a specific index.
+        """
+        if index < 0 or index >= self.point_cloud.shape[0]:
+            raise ValueError(f"Index out of bounds. There are {self.point_cloud.shape[0]} frames in this file.")
+        pc = self.point_cloud[index].reshape(-1,3)
+        return pc
 
 class DistanceProfile:
     def __init__(self, source, target):
+        """
+        Initialize the DistanceProfile with source and target point clouds.
+        """
         self.source = source
         self.target = target
 
     def compute_L2_matrix(self):
+        """
+        Compute the L2 distance matrix for the source and target point clouds.
+        """
         n_source = self.source.shape[0]
         n_target = self.target.shape[0]
         distance_matrix = np.array([np.zeros((n_source, n_source)), np.zeros((n_target, n_target))])
@@ -319,6 +359,9 @@ class DistanceProfile:
         return distance_matrix[0], distance_matrix[1]
 
     def compute_L1_matrix(self):
+        """
+        Compute the L1 distance matrix for the source and target point clouds.
+        """
         n_source = self.source.shape[0]
         n_target = self.target.shape[0]
         distance_matrix = np.array([np.zeros((n_source, n_source)), np.zeros((n_target, n_target))])
@@ -329,6 +372,22 @@ class DistanceProfile:
             for i in range(n):
                 for j in range(n):
                     distance_matrix[count][i, j] = np.linalg.norm(cp[i] - cp[j], ord=1)
+        return distance_matrix[0], distance_matrix[1]
+    
+    def compute_LN_matrix(self,n=1):
+        """
+        Compute the L-norm distance matrix for the source and target point clouds.
+        """
+        n_source = self.source.shape[0]
+        n_target = self.target.shape[0]
+        distance_matrix = np.array([np.zeros((n_source, n_source)), np.zeros((n_target, n_target))])
+        count = -1
+        for cp in [self.source, self.target]:
+            count += 1
+            n = cp.shape[0]
+            for i in range(n):
+                for j in range(n):
+                    distance_matrix[count][i, j] = np.linalg.norm(cp[i] - cp[j], ord=n)
         return distance_matrix[0], distance_matrix[1]
 
 
