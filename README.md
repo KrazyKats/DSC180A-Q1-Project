@@ -6,6 +6,7 @@ This repository contains the implementation of our Q1 project, focused on point 
 
 
 ## Repository Structure
+```
 DSC180A-Q1-Project/
 ├── datasets/               # point clouds
 │   ├── csv_files/          # MOCAP data in CSV form
@@ -21,6 +22,7 @@ DSC180A-Q1-Project/
 │   └── script.py           # Downloads mocap data, converts CSV, runs GW
 ├── requirements.txt        # Reproducible conda environment
 └── README.md               # Project documentation
+```
 
 
 ## Datasets
