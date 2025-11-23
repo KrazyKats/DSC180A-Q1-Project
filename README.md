@@ -6,26 +6,21 @@ This repository contains the implementation of our Q1 project, focused on point 
 
 
 ## Repository Structure
-
 DSC180A-Q1-Project/
-│
-├── datasets/ # point clouds
-│ ├── csv_files/ # MOCAP data in CSV form
-│ ├── txt_files/ # MOCAP data in txt form
-│
-├── src/ # All processing, matching, and evaluation code
-│ ├── __init__/ # make src a python package
-│ ├── accuracy/ # accuracy(), dist_accuracy()
-│ ├── utils/ # LoadCloudPoint, DistanceProfile, plotting functions
-│
-├── notebooks/ # Used for visualizations
+├── datasets/               # point clouds
+│   ├── csv_files/          # MOCAP data in CSV form
+│   └── txt_files/          # MOCAP data in TXT form
+├── src/                    # All processing, matching, and evaluation code
+│   ├── __init__.py         # make src a Python package
+│   ├── accuracy/           # accuracy(), dist_accuracy()
+│   ├── utils/              # LoadCloudPoint, DistanceProfile, plotting functions
+│   └── plot_utils.py       # optional: 3D plotting & animation
+├── notebooks/              # Used for visualizations
 ├── scripts/
-│ ├── matt_script.py      # Multi-frame matching animation using OT plans
-│ ├── script.py           # Downloads mocap data, converts CSV, runs GW 
-│
-├── requirements.txt # Reproducible conda environment
-└── README.md # Project documentation
-
+│   ├── matt_script.py      # Multi-frame matching animation using OT plans
+│   └── script.py           # Downloads mocap data, converts CSV, runs GW
+├── requirements.txt        # Reproducible conda environment
+└── README.md               # Project documentation
 
 
 ## Datasets
