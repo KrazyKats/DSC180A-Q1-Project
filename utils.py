@@ -256,6 +256,117 @@ def animate_point_cloud_matches(points1_list, points2_list, G_list, switch_xz=Tr
 
     return fig
 
+def remove_points_then_match(source, target, alpha = 0):
+    
+    source_points_removed = []
+    target_points_removed = []
+    source_indices_removed = []
+    target_indices_removed = []
+    source_indices = []
+    target_indices = []
+
+    for i in range(source.shape[0]):
+        if source[i, 1] == 0 or source[i, 2] == 0:
+            source_indices_removed.append(i)
+            continue
+        source_points_removed.append(source[i])
+        source_indices.append(i)
+
+    for i in range(target.shape[0]):
+        if target[i, 1] == 0 or target[i, 2] == 0:
+            target_indices_removed.append(i)
+            continue
+        target_points_removed.append(target[i])
+        target_indices.append(i)
+
+    source_points_removed = np.array(source_points_removed)
+    target_points_removed = np.array(target_points_removed)
+
+    M = ot.dist(source_points_removed, target_points_removed)
+    a = np.ones(source_points_removed.shape[0]) / source_points_removed.shape[0]
+    b = np.ones(target_points_removed.shape[0]) / target_points_removed.shape[0]
+
+    C1 = sp.spatial.distance.cdist(source_points_removed, source_points_removed)
+    C2 = sp.spatial.distance.cdist(target_points_removed, target_points_removed)
+
+    G = ot.fused_gromov_wasserstein(M, C1, C2, alpha=alpha)
+
+    output = (
+        G,
+        source_points_removed,
+        target_points_removed,
+        source_indices,
+        target_indices,
+        source_indices_removed,
+        target_indices_removed
+    )
+
+    return output
+
+def plot_matching_points_removed(source, target, thresh = 0.5, alpha = 0):
+
+    
+    G, source_points_removed, target_points_removed, source_indices, target_indices, source_indices_removed, target_indiced_removed = remove_points_then_match(source, target,alpha = alpha)
+
+    matching = {}
+    correct_dict = {}
+    removed_counter = 0
+
+
+    for i in range(source.shape[0]):
+        if i in source_indices_removed:
+            removed_counter +=1
+            continue
+        ind = i - removed_counter
+        if G[ind].max() > 1 / source_points_removed.shape[0] * thresh:
+            matching[ind] = G[ind].argmax()
+            if target_indices[G[ind].argmax()] == i:
+                correct_dict[ind] = True
+            else:
+                correct_dict[ind] = False
+
+    fig = go.Figure()
+
+    xs_red, ys_red, zs_red = [], [], []
+    xs_gray, ys_gray, zs_gray = [], [], []
+
+    for ind in matching:
+        p1 = source_points_removed[ind]
+        p2 = target_points_removed[matching[ind]]
+
+        if correct_dict[ind]:
+            xs, ys, zs = xs_gray, ys_gray, zs_gray
+        else:
+            xs, ys, zs = xs_red, ys_red, zs_red
+
+        xs += [p1[2], p2[2], None]
+        ys += [p1[1], p2[1], None]
+        zs += [p1[0], p2[0], None]
+
+    fig.add_trace(go.Scatter3d(
+        x=xs_gray, y=ys_gray, z=zs_gray, 
+        mode="lines",
+        line=dict(color="gray", width=2)
+    ))
+
+    fig.add_trace(go.Scatter3d(
+        x=xs_red, y=ys_red, z=zs_red, 
+        mode="lines",
+        line=dict(color="red", width=2)
+    ))
+
+    
+    fig.add_trace(go.Scatter3d(
+        x=source_points_removed[:, 2], y=source_points_removed[:, 1], z=source_points_removed[:, 0],
+        mode="markers", marker=dict(size=5, color="blue"), name="Points 1"
+    ))
+    fig.add_trace(go.Scatter3d(
+        x=target_points_removed[:, 2], y=target_points_removed[:, 1], z=target_points_removed[:, 0],
+        mode="markers", marker=dict(size=5, color="red"), name="Points 2"
+    ))
+
+    return fig
+
 
 # ----------------------------------------------------
 # Takafumi's work
@@ -311,7 +422,10 @@ class LoadCloudPoint:
         return source, target
     
     def get_pointclouds_range(self, indices):
-        return self.point_cloud[indices]
+        output = []
+        for index in indices:
+            output.append(self.point_cloud[index].reshape(-1, 3))
+        return output
     
     def get_t_distant_point_cloud(self, t=500):
         """

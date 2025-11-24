@@ -6,9 +6,9 @@ import ot
 import numpy as np
 import matplotlib.pyplot as plt
 import utils
+import sys
 
-if __name__ == "__main__":
-
+def animation_test():
     lcp = utils.LoadCloudPoint(filepath="datasets/csv_files/0005_Jogging001.csv")
     print("CSV loaded")
     N_frames = 100
@@ -37,7 +37,19 @@ if __name__ == "__main__":
         switch_xz=True,
         color_incorrect=True
     )
-
+    print(sys.getsizeof(fig.to_plotly_json()))
     fig.show()
+
+def point_removal_test():
+    lcp = utils.LoadCloudPoint(filepath="datasets/csv_files/0005_Jogging001.csv")
+
+    source, target = lcp.get_pointclouds_fixed_timestep(10, fixed_beginning_idx=0)
+
+    fig = utils.plot_matching_points_removed(source, target, thresh=0.1)
+    fig.show()
+
+if __name__ == "__main__":
+    #animation_test()
+    point_removal_test()
 
 
