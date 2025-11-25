@@ -208,3 +208,11 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Dzu's ignore files
+quy_dzu_pipe_test/
+qndo_pipe.ipynb
+
+#Takafumi
+# takafumi*
+datasets/val.py
