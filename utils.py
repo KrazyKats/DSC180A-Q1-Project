@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 # Matt work
 
-def plot_3d_points_and_connections(points1, points2, G, switch_xz = True, color_incorrect = False):
+def plot_3d_points_and_connections(points1, points2, G, switch_yz = True, color_incorrect = False):
     """
     Given points1, points2, and G, plot the points and lines between matching points. If switch_xz is true then this will switch the x and z coordinates before plotting (since by default in the mocap data the x is the vertical axis).
     points1, points2: Nx3 arrays
@@ -32,11 +32,12 @@ def plot_3d_points_and_connections(points1, points2, G, switch_xz = True, color_
     if np.count_nonzero(G) < points1.shape[0]:
         raise ValueError("Matching has too few nonzero entries")
 
-    if switch_xz:
-        x_ind = 2
-        z_ind = 0
+    x_ind = 0
+    if switch_yz:
+        y_ind = 2
+        z_ind = 1
     else:
-        x_ind = 0
+        y_ind = 1
         z_ind = 2
 
     # Ensure numpy arrays
@@ -48,7 +49,7 @@ def plot_3d_points_and_connections(points1, points2, G, switch_xz = True, color_
 
     # Plot first set of 3D points
     fig.add_trace(go.Scatter3d(
-        x=points1[:, x_ind], y=points1[:, 1], z=points1[:, z_ind],
+        x=points1[:, x_ind], y=points1[:, y_ind], z=points1[:, z_ind],
         mode='markers',
         marker=dict(size=5, color='blue'),
         name='Points 1'
@@ -56,7 +57,7 @@ def plot_3d_points_and_connections(points1, points2, G, switch_xz = True, color_
 
     # Plot second set of 3D points
     fig.add_trace(go.Scatter3d(
-        x=points2[:, x_ind], y=points2[:, 1], z=points2[:, z_ind],
+        x=points2[:, x_ind], y=points2[:, y_ind], z=points2[:, z_ind],
         mode='markers',
         marker=dict(size=5, color='red'),
         name='Points 2'
@@ -73,7 +74,7 @@ def plot_3d_points_and_connections(points1, points2, G, switch_xz = True, color_
                 p2 = points2[j]
                 fig.add_trace(go.Scatter3d(
                     x=[p1[x_ind], p2[x_ind]],
-                    y=[p1[1], p2[1]],
+                    y=[p1[y_ind], p2[y_ind]],
                     z=[p1[z_ind], p2[z_ind]],
                     mode='lines',
                     line=dict(color=c, width=2),
@@ -112,7 +113,7 @@ def compute_gw_and_plot(xs, xt):
     print("hi")
     return fig, G0
 
-def animate_point_cloud_matches(points1_list, points2_list, G_list, switch_xz=True, color_incorrect=False):
+def animate_point_cloud_matches(points1_list, points2_list, G_list, switch_yz=True, color_incorrect=False):
     """
     Create a Plotly animation where each frame shows two point clouds and
     the matchings between them.
@@ -127,10 +128,13 @@ def animate_point_cloud_matches(points1_list, points2_list, G_list, switch_xz=Tr
         raise ValueError("points1_list, points2_list, and G_list must have same length")
 
     # Axis swapping logic
-    if switch_xz:
-        x_ind, z_ind = 2, 0
+    x_ind = 0
+    if switch_yz:
+        y_ind = 2
+        z_ind = 1
     else:
-        x_ind, z_ind = 0, 2
+        y_ind = 1
+        z_ind = 2
 
     # Prepare base figure
     fig = go.Figure()
@@ -142,11 +146,11 @@ def animate_point_cloud_matches(points1_list, points2_list, G_list, switch_xz=Tr
 
     # Scatter traces for points (these remain and are updated in frames)
     fig.add_trace(go.Scatter3d(
-        x=p1[:, x_ind], y=p1[:, 1], z=p1[:, z_ind],
+        x=p1[:, x_ind], y=p1[:, y_ind], z=p1[:, z_ind],
         mode="markers", marker=dict(size=5, color="blue"), name="Points 1"
     ))
     fig.add_trace(go.Scatter3d(
-        x=p2[:, x_ind], y=p2[:, 1], z=p2[:, z_ind],
+        x=p2[:, x_ind], y=p2[:, y_ind], z=p2[:, z_ind],
         mode="markers", marker=dict(size=5, color="red"), name="Points 2"
     ))
 
@@ -180,7 +184,7 @@ def animate_point_cloud_matches(points1_list, points2_list, G_list, switch_xz=Tr
                     p1i = p1[i]
                     p2j = p2[j]
                     xs.append([p1i[x_ind], p2j[x_ind]])
-                    ys.append([p1i[1],    p2j[1]])
+                    ys.append([p1i[y_ind],    p2j[y_ind]])
                     zs.append([p1i[z_ind], p2j[z_ind]])
                     colors.append("red" if color_incorrect and i != j else "gray")
 
@@ -197,11 +201,11 @@ def animate_point_cloud_matches(points1_list, points2_list, G_list, switch_xz=Tr
 
         # Updated points
         frame_data.append(go.Scatter3d(
-            x=p1[:, x_ind], y=p1[:, 1], z=p1[:, z_ind],
+            x=p1[:, x_ind], y=p1[:, y_ind], z=p1[:, z_ind],
             mode="markers", marker=dict(size=5, color="blue")
         ))
         frame_data.append(go.Scatter3d(
-            x=p2[:, x_ind], y=p2[:, 1], z=p2[:, z_ind],
+            x=p2[:, x_ind], y=p2[:, y_ind], z=p2[:, z_ind],
             mode="markers", marker=dict(size=5, color="red")
         ))
 
@@ -356,13 +360,21 @@ def construct_correctness_dict(G, source, source_points_removed, source_indices_
     return correct_dict
 
 
-def plot_matching_points_removed(source, target, thresh = 0.5, alpha = 0, matchtype = "FGW"):
+def plot_matching_points_removed(source, target, thresh = 0.5, alpha = 0, matchtype = "FGW", switch_yz = True):
 
     
     G, source_points_removed, target_points_removed, source_indices_removed, target_indiced_removed, source_indices, target_indices = remove_points_then_match(source, target,alpha = alpha, matchtype = matchtype)
 
     matching = construct_index_match(G, source, source_points_removed, source_indices_removed, target_indices, thresh)
     correct_dict = construct_correctness_dict(G, source, source_points_removed, source_indices_removed, target_indices, thresh)
+
+    x_ind = 0
+    if switch_yz:
+        y_ind = 2
+        z_ind = 1
+    else:
+        y_ind = 1
+        z_ind = 2
 
     fig = go.Figure()
 
@@ -378,9 +390,9 @@ def plot_matching_points_removed(source, target, thresh = 0.5, alpha = 0, matcht
         else:
             xs, ys, zs = xs_red, ys_red, zs_red
 
-        xs += [p1[2], p2[2], None]
-        ys += [p1[1], p2[1], None]
-        zs += [p1[0], p2[0], None]
+        xs += [p1[x_ind], p2[x_ind], None]
+        ys += [p1[y_ind], p2[y_ind], None]
+        zs += [p1[z_ind], p2[z_ind], None]
 
     fig.add_trace(go.Scatter3d(
         x=xs_gray, y=ys_gray, z=zs_gray, 
@@ -396,11 +408,11 @@ def plot_matching_points_removed(source, target, thresh = 0.5, alpha = 0, matcht
 
     
     fig.add_trace(go.Scatter3d(
-        x=source_points_removed[:, 2], y=source_points_removed[:, 1], z=source_points_removed[:, 0],
+        x=source_points_removed[:, x_ind], y=source_points_removed[:, y_ind], z=source_points_removed[:, z_ind],
         mode="markers", marker=dict(size=5, color="blue"), name="Points 1"
     ))
     fig.add_trace(go.Scatter3d(
-        x=target_points_removed[:, 2], y=target_points_removed[:, 1], z=target_points_removed[:, 0],
+        x=target_points_removed[:, x_ind], y=target_points_removed[:, y_ind], z=target_points_removed[:, z_ind],
         mode="markers", marker=dict(size=5, color="red"), name="Points 2"
     ))
 
