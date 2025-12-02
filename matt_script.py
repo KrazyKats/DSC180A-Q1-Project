@@ -34,7 +34,7 @@ def animation_test():
         points1_list,   # list of Nx3 point clouds
         points2_list,   # list of Nx3 point clouds
         G_list,         # list of matching matrices
-        switch_xz=True,
+        switch_yz=True,
         color_incorrect=True
     )
     print(sys.getsizeof(fig.to_plotly_json()))
@@ -50,8 +50,8 @@ def point_removal_test(thresh):
 
 if __name__ == "__main__":
     #animation_test()
-    point_removal_test(.9)
-    #point_removal_test(.5)
+    #point_removal_test(.9)
+    point_removal_test(.5)
 
     pass
 
