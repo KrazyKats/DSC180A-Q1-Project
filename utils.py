@@ -1,6 +1,8 @@
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
+pio.renderers.default = "browser"
 import pandas as pd
 from pathlib import Path
 import ot
@@ -272,9 +274,15 @@ def animate_point_cloud_matches(points1_list, points2_list, G_list, switch_xz=Tr
 # ----------------------------------------------------
 
 class LoadCloudPoint:
-    def __init__(self, filepath=None):
+    """
+    This class holds functions to load point cloud data from CSV files and provide methods to access 
+    different point clouds.
+    """
+    def __init__(self, filepath=None, missing_point=False):
         """
-        Load point cloud data from a CSV file. If no filepath is provided, randomly select one from the datasets/csv_files directory.
+        Load point cloud data from a CSV file. If no filepath is provided, randomly select one from 
+        the datasets/csv_files directory.
+        If missing_point is True, replace points with coordinates (*,0,0) with NaN.
         """
         if filepath == None:
             csv_dir = Path("datasets/csv_files")
@@ -282,9 +290,19 @@ class LoadCloudPoint:
             filepath = np.random.choice(csv_list)
         else:
             pass
-
+        
         self.filepath = Path(filepath)
-        self.point_cloud = pd.read_csv(filepath).to_numpy()
+
+        if missing_point == True:
+            data = np.loadtxt(filepath, delimiter=",", skiprows=1)
+            n_frames = data.shape[0]
+            n_markers = data.shape[1] // 3
+            final_array = data.reshape(n_frames, n_markers, 3)
+            final_array[(final_array[:, :, 1] == 0) & (final_array[:, :, 2] == 0)] = np.nan
+            self.point_cloud = final_array
+        else:
+            self.point_cloud = np.loadtxt(filepath, delimiter=",", skiprows=1)
+        
         print(f"Loaded point cloud data from {self.filepath}, number of frames: {self.point_cloud.shape[0]}")
 
     def get_entire_point_cloud(self):
@@ -336,6 +354,22 @@ class LoadCloudPoint:
             raise ValueError(f"Index out of bounds. There are {self.point_cloud.shape[0]} frames in this file.")
         pc = self.point_cloud[index].reshape(-1,3)
         return pc
+    
+    def load_df(self, missing_point=False):
+        """
+        Load the DataFrame of the point cloud data from the CSV file.
+        missing_point: If True, replace points with coordinates (*,0,0) with NaN.
+        """
+        filepath = Path(self.filepath)
+        data = np.loadtxt(filepath, delimiter=",", skiprows=1)
+        n_frames = data.shape[0]
+        n_markers = data.shape[1] // 3
+        df = pd.DataFrame(data.reshape(n_frames, n_markers, 3).tolist())
+        if missing_point:
+            df = df.map(lambda x: np.nan if x[1] == 0 and x[2] == 0 else np.array(x))
+        else:
+            pass
+        return df
 
 class DistanceProfile:
     def __init__(self, source, target):
