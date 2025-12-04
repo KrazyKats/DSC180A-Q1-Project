@@ -1,35 +1,41 @@
-# Formerly matt_script.py
+# Formerly script.py
 import sys
 import os
+from pathlib import Path
+
+import pandas as pd
+import numpy as np
+import ot
+import matplotlib.pyplot as plt
 
 # Add project root (one level up) to Python path
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
-from src.datasets.download_mocap import download_mocap
-from src.datasets.txt_to_csv import txt_to_csv
-import pandas as pd
-from pathlib import Path
-import ot
-import numpy as np
-import matplotlib.pyplot as plt
-import src.utils as utils
 
-if __name__ == "__main__":
-    print("hey")
+from dsc180a_q1_project import utils
+from dsc180a_q1_project.datasets import download_mocap, txt_to_csv
+
+def main():
+    # Download and convert data
+    print("Downloading Mocap Data")
     download_mocap.main_downloader(download_limit=10_000)
-
     txt_to_csv.convert_all_txt(convert_limit=10_000)
 
-    csv_dir = Path("datasets/csv_files")
+    # Load first csv file
+    csv_dir = PROJECT_ROOT / "datasets" / "csv_files"
     csv_list = sorted(csv_dir.glob("*.csv"))
     if not csv_list:
         raise FileNotFoundError(f"No CSV files found in {csv_dir}")
     first_csv = csv_list[0]
     df = pd.read_csv(first_csv)
 
+    # Select two frames to compare
     frame_one = df.iloc[0].to_numpy().reshape(-1, 3)
     frame_two = df.iloc[499].to_numpy().reshape(-1, 3)
     print("yo")
+
+    # Compute GW and plot
     fig, G0 = utils.compute_gw_and_plot(frame_one, frame_two)
     fig.show()
 
@@ -70,3 +76,7 @@ if __name__ == "__main__":
     # ax.legend()
     # plt.tight_layout()
     # plt.show()
+
+
+if __name__ == "__main__":
+    main()

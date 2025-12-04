@@ -8,19 +8,31 @@ This repository contains the implementation of our Q1 project, focused on point 
 ## Repository Structure
 ```
 DSC180A-Q1-Project/
-├── datasets/               # point clouds
-│   ├── csv_files/          # MOCAP data in CSV form
-│   └── txt_files/          # MOCAP data in TXT form
-├── src/                    # All processing, matching, and evaluation code
-│   ├── __init__.py         # make src a Python package
-│   ├── accuracy/           # accuracy(), dist_accuracy()
-│   └── utils/              # LoadCloudPoint, DistanceProfile, plotting functions
-├── notebooks/              # Used for visualizations
-├── scripts/
-│   ├── matt_script.py      # Multi-frame matching animation using OT plans
-│   └── script.py           # Downloads mocap data, converts CSV, runs GW
-├── requirements.txt        # Reproducible conda environment
-└── README.md               # Project documentation
+├─ datasets/                          # Folder for all data (raw and processed)
+│  ├─ csv_files/                         # MoCap CSV files generated from TXT files (processed)
+│  └─ txt_files/                         # Original MoCap TXT files (raw)
+│
+├─ src/                               # Root for all Python code
+│  ├─ scripts/                          # CLI scripts to run tasks
+│  │  ├─ __init__.py                     # Makes scripts/ a Python module
+│  │  ├─ download_and_convert.py         # Script with main() to download and convert data
+│  │  └─ run_pipeline.py                 # Script with main() to run the full pipeline
+│  │
+│  └─ dsc180a_q1_project/             # Main package
+│     ├─ __init__.py                     # Exposes key utilities for easy imports
+│     ├─ utils.py                        # Core classes/functions: LoadCloudPoint, DistanceProfile, plotting, accuracy
+│     └─ datasets/                       # Helper modules for dataset handling
+│        ├─ __init__.py                  # Makes datasets/ a Python module
+│        ├─ download_mocap.py            # Functions to download MoCap data
+│        └─ txt_to_csv.py                # Functions to convert TXT files to CSV   
+├─ notebooks/                         # Used for visualizations
+├─ scripts/
+│   ├── matt_script.py                   # Multi-frame matching animation using OT plans
+│   └── download_and_convert.py          # Downloads mocap data, converts CSV, runs GW
+│
+├─ setup.py                # Package setup file, defines dependencies and CLI entry points
+├─ requirements.txt        # List of Python dependencies for pip
+└─ README.md               # Project documentation
 ```
 
 ### Notebooks
@@ -36,21 +48,51 @@ All notebooks are in the `notebooks/` folder and are used for exploration, visua
 ## Running the Pipeline
  This project demonstrates point cloud matching on MOCAP data using Optimal Transport, Distance Profiling, and Gromov-Wasserstein methods.
 
-### 1. Setup
-Install Dependencies
 
-``` bash
-conda create -n dsc180a python=3.11
-conda activate dsc180a
-pip install -r requirements.txt
+### 1. Setup
+
+Install the package and dependencies:
+
+```bash
+# Install locally in editable mode
+pip install -e .
 ```
 
 ### 2. Data Acquisition
+
 ```bash 
 # Download MoCap data (max 10,000 files)
-python scripts/download_and_convert.py
+download_csv
+
 ```
 
+/// DOESNT WORK FROM THIS POINT FORWARD
+
+### 3. Load Point Clouds
+```bash 
+from dsc180a_q1_project.utils import LoadCloudPoint
+
+lcp = LoadCloudPoint(filepath="datasets/csv_files/0005_Jogging001.csv")
+source_pc, target_pc = lcp.get_two_random_point_cloud()
+```
+
+### 4. Compute Distance Profiles
+```bash
+from dsc180a_q1_project.utils import DistanceProfile
+
+dp = DistanceProfile(source_pc, target_pc)
+distance_matrix = dp.compute_L2_matrix()
+```
+
+### 5. Run GW
+```bash
+import ot
+from dsc180a_q1_project.utils import compute_W_matrix_distance_matrix_input, plot_3d_points_and_connections
+
+W, map_matrix = compute_W_matrix_distance_matrix_input(distance_matrix[0], distance_matrix[1])
+plot_3d_points_and_connections(source_pc, target_pc, map_matrix)
+
+```
 
 
 ### SFU MOCAP data

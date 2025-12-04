@@ -1,4 +1,4 @@
-from src.utils import (
+from .utils import (
     LoadCloudPoint,
     DistanceProfile,
     plot_3d_points_and_connections,
@@ -7,7 +7,7 @@ from src.utils import (
     compute_gw_and_plot,
     animate_point_cloud_matches
 )
-from src.accuracy import accuracy, dist_accuracy
+from .accuracy import accuracy, dist_accuracy
 
 __all__ = [
     'LoadCloudPoint',

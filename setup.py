@@ -11,11 +11,11 @@ setup(
         "plotly",
         "matplotlib",
         "scipy",
-        "ot",                          # Python Optimal Transport
+        "pot",
     ],
-    entry_points={                     # Optional: command line scripts
+    entry_points={                     #command line scripts
         "console_scripts": [
-            "run-script=scripts.script:main",  # if your script has a main() function
+        "run-script=scripts.download_and_convert:main", # if your script has a main() function
         ],
     },
 )
