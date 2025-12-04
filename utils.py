@@ -357,8 +357,11 @@ class LoadCloudPoint:
         Load the DataFrame of the point cloud data from the CSV file.
         missing_point: If True, replace points with coordinates (*,0,0) with NaN.
         """
-        self.filepath = Path(self.filepath)
-        df = pd.read_csv(self.filepath)
+        filepath = Path(self.filepath)
+        data = np.loadtxt(filepath, delimiter=",", skiprows=1)
+        n_frames = data.shape[0]
+        n_markers = data.shape[1] // 3
+        df = pd.DataFrame(data.reshape(n_frames, n_markers, 3).tolist())
         if missing_point:
             df = df.map(lambda x: np.nan if x[1] == 0 and x[2] == 0 else np.array(x))
         else:
