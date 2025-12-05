@@ -1,13 +1,21 @@
-from datasets import download_mocap
-from datasets import txt_to_csv
-import pandas as pd
+# Formerly matt_script.py
+import sys
+import os
 from pathlib import Path
+
+import pandas as pd
 import ot
 import numpy as np
 import matplotlib.pyplot as plt
-import utils
 
-if __name__ == "__main__":
+# Add project root (one level up) to Python path
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT / "src"))
+
+from dsc180a_q1_project import utils
+from dsc180a_q1_project.datasets import download_mocap, txt_to_csv
+
+def main():
 
     lcp = utils.LoadCloudPoint(filepath="datasets/csv_files/0005_Jogging001.csv")
     print("CSV loaded")
@@ -40,4 +48,5 @@ if __name__ == "__main__":
 
     fig.show()
 
-
+if __name__ == "__main__":
+    main()
