@@ -579,3 +579,8 @@ def compute_W_matrix(X, Y):
     map_matrix = emd(np.ones(n) / n, np.ones(m) / m, W)
 
     return W, map_matrix
+
+# Path utility function
+def get_csv_path(filename):
+    PROJECT_ROOT = Path(__file__).resolve().parents[2]  # two levels up from utils.py
+    return PROJECT_ROOT / "datasets" / "csv_files" / filename
