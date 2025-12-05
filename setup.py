@@ -15,7 +15,8 @@ setup(
     ],
     entry_points={                     #command line scripts
         "console_scripts": [
-        "run-script=scripts.download_and_convert:main", # if your script has a main() function
+        "download_csv=scripts.download_and_convert:main",
+        "multi_frame_ot=scripts.multi_frame_ot:main",
         ],
     },
 )

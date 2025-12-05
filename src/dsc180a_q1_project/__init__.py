@@ -6,7 +6,6 @@ from .utils import (
     compute_W_matrix,
     compute_gw_and_plot,
     animate_point_cloud_matches,
-    get_csv_path
 )
 from .accuracy import accuracy, dist_accuracy
 
@@ -18,7 +17,6 @@ __all__ = [
     'compute_W_matrix',
     'compute_gw_and_plot',
     'animate_point_cloud_matches',
-    'get_csv_path',
     'accuracy',
     'dist_accuracy',
 ]
