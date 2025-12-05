@@ -9,8 +9,9 @@ import ot
 import matplotlib.pyplot as plt
 
 # Add project root (one level up) to Python path
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(PROJECT_ROOT / "src"))
+PROJECT_ROOT = Path(__file__).resolve().parents[2]  # go up 2 levels to repo root
+SRC_DIR = PROJECT_ROOT / "src"
+sys.path.insert(0, str(SRC_DIR))
 
 
 from dsc180a_q1_project import utils
@@ -19,8 +20,8 @@ from dsc180a_q1_project.datasets import download_mocap, txt_to_csv
 def main():
     # Download and convert data
     print("Downloading Mocap Data")
-    download_mocap.main_downloader(download_limit=10_000)
-    txt_to_csv.convert_all_txt(convert_limit=10_000)
+    download_mocap.main_downloader(download_limit=1)
+    txt_to_csv.convert_all_txt(convert_limit=1)
 
     # Load first csv file
     csv_dir = PROJECT_ROOT / "datasets" / "csv_files"
