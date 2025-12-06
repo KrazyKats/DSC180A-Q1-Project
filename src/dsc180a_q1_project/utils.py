@@ -14,7 +14,7 @@ import numpy as np
 import heapq
 import numpy as np
 from ot import wasserstein_1d, emd
-from dsc180a_q1_project import accuracy, dist_accuracy, partial_accuracy
+from .accuracy import accuracy, dist_accuracy, partial_accuracy
 
 # Matt work
 
@@ -442,7 +442,7 @@ def test_acc_random_pose(accfunc, matchtype, range_length = 100, remove_points =
 
     for i in range(range_length):
         if remove_points:
-            if accfunc != accuracy.partial_accuracy:
+            if accfunc != partial_accuracy:
                 print("Using partial accuracy instead")
             if matchtype == "DPM":
                 pi, I = compute_W_matrix_distance_matrix_input_finite_p(
@@ -458,7 +458,7 @@ def test_acc_random_pose(accfunc, matchtype, range_length = 100, remove_points =
                 accs.append((correct + correctly_missing) / clouds[0].shape[0])
                 continue
             G, source_points_removed, target_points_removed, source_indices_removed, target_indices_removed, source_indices, target_indices = remove_points_then_match(clouds[0], clouds[i], matchtype = matchtype, alpha = alpha)
-            acc = accuracy.partial_accuracy(G, clouds[0], source_points_removed, source_indices_removed, source_indices, target_indices_removed, target_indices, thresh = threshold)[0]
+            acc = partial_accuracy(G, clouds[0], source_points_removed, source_indices_removed, source_indices, target_indices_removed, target_indices, thresh = threshold)[0]
             accs.append(acc)
         else:
             C1 = sp.spatial.distance.cdist(clouds[0], clouds[0])
@@ -474,9 +474,9 @@ def test_acc_random_pose(accfunc, matchtype, range_length = 100, remove_points =
                 if matchtype != "DPM":
                     print("Unknown matchtype provided, will proceed using distance profile matching. Current supported options are 'FGW', 'pGW', 'DPM'.")
                 G = dpm_finite_p(C1, C2, p = p)
-            if accfunc == accuracy.accuracy:
+            if accfunc == accuracy:
                 accs.append(accfunc(G))
-            elif accfunc == accuracy.dist_accuracy:
+            elif accfunc == dist_accuracy:
                 accs.append(accfunc(clouds[0], clouds[i], G))
 
     return accs
@@ -525,7 +525,7 @@ def acc_full_test(num_poses = 2):
         ("pGW", 0),
         ("DPM", 0)
     ]
-    accfunc = accuracy.accuracy
+    accfunc = accuracy
     for matchtype, alpha in matchtypes_labels:
         if matchtype == "FGW":
             label = matchtype + f" alpha = {alpha}"
@@ -550,7 +550,7 @@ def acc_dist_test(num_poses = 2):
         ("pGW", 0),
         ("DPM", 0)
     ]
-    accfunc = accuracy.dist_accuracy
+    accfunc = dist_accuracy
     for matchtype, alpha in matchtypes_labels:
         if matchtype == "FGW":
             label = matchtype + f" alpha = {alpha}"
@@ -575,7 +575,7 @@ def acc_rem_test(num_poses = 2):
         ("pGW", 0),
         ("DPM", 0)
     ]
-    accfunc = accuracy.partial_accuracy
+    accfunc = partial_accuracy
     for matchtype, alpha in matchtypes_labels:
         if matchtype == "FGW":
             label = matchtype + f" alpha = {alpha}"

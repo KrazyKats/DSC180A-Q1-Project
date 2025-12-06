@@ -6,6 +6,9 @@ from .utils import (
     compute_W_matrix,
     compute_gw_and_plot,
     animate_point_cloud_matches,
+    acc_full_test,
+    acc_dist_test,
+    acc_rem_test,
 )
 from .accuracy import accuracy, dist_accuracy, partial_accuracy
 
@@ -17,6 +20,9 @@ __all__ = [
     'compute_W_matrix',
     'compute_gw_and_plot',
     'animate_point_cloud_matches',
+    'acc_full_test',
+    'acc_dist_test',
+    'acc_rem_test',
     'accuracy',
     'dist_accuracy',
     'partial_accuracy',

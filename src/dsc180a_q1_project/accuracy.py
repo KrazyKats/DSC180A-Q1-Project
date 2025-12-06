@@ -24,7 +24,7 @@ def dist_accuracy(pc1, pc2, matching):
     return np.mean(diffnorms)
 
 def partial_accuracy(G, source, source_points_removed, source_indices_removed, source_indices, target_indices_removed, target_indices, thresh):
-    from utils import construct_index_match
+    from .utils import construct_index_match
     """
     Returns:
     (# correct matchings + # correctly missing matchings) / (# of original points)

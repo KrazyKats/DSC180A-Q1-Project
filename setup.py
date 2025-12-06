@@ -14,13 +14,13 @@ setup(
         "plotly==6.1.2",
         "scipy==1.11.3",
         "scikit-learn==1.3.1",
-        "POT==0.9.1",  # Python Optimal Transport library
+        "POT==0.9.6",  # Python Optimal Transport library
         "ipykernel==6.25.2",
     ],
     entry_points={                     #command line scripts
         "console_scripts": [
         "download_csv=scripts.download_and_convert:main",
-        "multi_frame_ot=scripts.multi_frame_ot:main",
+        "graphics=scripts.graphics:main",
         ],
     },
 )
