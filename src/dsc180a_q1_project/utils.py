@@ -569,6 +569,33 @@ def acc_dist_test(num_poses = 2):
     plt.legend()
     plt.show()
 
+def acc_rem_test(num_poses = 2):
+    import accuracy
+    matchtypes_labels = [
+        ("FGW", 0),
+        ("FGW", 0.5),
+        ("FGW", 1),
+        ("pGW", 0),
+        ("DPM", 0)
+    ]
+    accfunc = accuracy.partial_accuracy
+    for matchtype, alpha in matchtypes_labels:
+        if matchtype == "FGW":
+            label = matchtype + f" alpha = {alpha}"
+        else:
+            label = matchtype
+        plt.plot(
+            test_acc_many_poses(accfunc, matchtype, num_poses=num_poses, remove_points=True, alpha = alpha, p=300),
+            label = label
+        )
+        print(f"Plotted {label}")
+    plt.xlabel("Timesteps From Start")
+    plt.ylabel(r"Mean $\text{Acc}_{\text{rem}}$")
+    plt.title(r"Mean $\text{Acc}_{\text{rem}}$ by Time Delta")
+    plt.legend()
+    plt.show()
+
+
 # ----------------------------------------------------
 # Takafumi's work
 # one txt file -> 2 point clouds -> distance profiles
