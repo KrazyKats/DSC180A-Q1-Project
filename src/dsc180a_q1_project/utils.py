@@ -14,7 +14,7 @@ import numpy as np
 import heapq
 import numpy as np
 from ot import wasserstein_1d, emd
-import accuracy
+from dsc180a_q1_project import accuracy, dist_accuracy, partial_accuracy
 
 # Matt work
 

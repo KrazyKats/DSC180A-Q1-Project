@@ -7,7 +7,7 @@ from .utils import (
     compute_gw_and_plot,
     animate_point_cloud_matches,
 )
-from .accuracy import accuracy, dist_accuracy
+from .accuracy import accuracy, dist_accuracy, partial_accuracy
 
 __all__ = [
     'LoadCloudPoint',
@@ -19,4 +19,5 @@ __all__ = [
     'animate_point_cloud_matches',
     'accuracy',
     'dist_accuracy',
+    'partial_accuracy',
 ]
