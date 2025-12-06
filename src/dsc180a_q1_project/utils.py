@@ -14,6 +14,7 @@ import numpy as np
 import heapq
 import numpy as np
 from ot import wasserstein_1d, emd
+import accuracy
 
 # Matt work
 
@@ -278,7 +279,7 @@ def remove_points_then_match(source, target, alpha = 0, matchtype = "FGW", p = f
     source_indices (indices of good source points)
     target_indices (indices of good target points)
     """
-    
+
     source_points_removed = []
     target_points_removed = []
     source_indices_removed = []
@@ -374,7 +375,7 @@ def construct_correctness_dict(G, source, source_points_removed, source_indices_
 
 def plot_matching_points_removed(source, target, thresh = 0.5, alpha = 0, matchtype = "FGW", switch_yz = True):
 
-    
+
     G, source_points_removed, target_points_removed, source_indices_removed, target_indiced_removed, source_indices, target_indices = remove_points_then_match(source, target,alpha = alpha, matchtype = matchtype)
 
     matching = construct_index_match(G, source, source_points_removed, source_indices_removed, target_indices, thresh)
@@ -407,18 +408,18 @@ def plot_matching_points_removed(source, target, thresh = 0.5, alpha = 0, matcht
         zs += [p1[z_ind], p2[z_ind], None]
 
     fig.add_trace(go.Scatter3d(
-        x=xs_gray, y=ys_gray, z=zs_gray, 
+        x=xs_gray, y=ys_gray, z=zs_gray,
         mode="lines",
         line=dict(color="gray", width=2)
     ))
 
     fig.add_trace(go.Scatter3d(
-        x=xs_red, y=ys_red, z=zs_red, 
+        x=xs_red, y=ys_red, z=zs_red,
         mode="lines",
         line=dict(color="red", width=2)
     ))
 
-    
+
     fig.add_trace(go.Scatter3d(
         x=source_points_removed[:, x_ind], y=source_points_removed[:, y_ind], z=source_points_removed[:, z_ind],
         mode="markers", marker=dict(size=5, color="blue"), name="Points 1"
@@ -435,7 +436,6 @@ def get_random_clouds(range_length = 100):
     return lcp.get_pointsclouds_random_range(range_length)
 
 def test_acc_random_pose(accfunc, matchtype, range_length = 100, remove_points = False, alpha = 0.5, threshold = 0.5, p = float("inf")):
-    import accuracy
     clouds = get_random_clouds(range_length)
 
     accs = []
@@ -462,7 +462,7 @@ def test_acc_random_pose(accfunc, matchtype, range_length = 100, remove_points =
             accs.append(acc)
         else:
             C1 = sp.spatial.distance.cdist(clouds[0], clouds[0])
-            C2 = sp.spatial.distance.cdist(clouds[i], clouds[i])           
+            C2 = sp.spatial.distance.cdist(clouds[i], clouds[i])
             if matchtype == "FGW":
                 M = ot.dist(clouds[0], clouds[i])
                 G = ot.fused_gromov_wasserstein(M, C1, C2, alpha = alpha)
@@ -473,7 +473,7 @@ def test_acc_random_pose(accfunc, matchtype, range_length = 100, remove_points =
             else:
                 if matchtype != "DPM":
                     print("Unknown matchtype provided, will proceed using distance profile matching. Current supported options are 'FGW', 'pGW', 'DPM'.")
-                G = dpm_finite_p(C1, C2, p = p)   
+                G = dpm_finite_p(C1, C2, p = p)
             if accfunc == accuracy.accuracy:
                 accs.append(accfunc(G))
             elif accfunc == accuracy.dist_accuracy:
@@ -518,7 +518,6 @@ def dpm_finite_p(c1, c2, p = float("inf")):
     return out
 
 def acc_full_test(num_poses = 2):
-    import accuracy
     matchtypes_labels = [
         ("FGW", 0),
         ("FGW", 0.5),
@@ -544,7 +543,6 @@ def acc_full_test(num_poses = 2):
     plt.show()
 
 def acc_dist_test(num_poses = 2):
-    import accuracy
     matchtypes_labels = [
         ("FGW", 0),
         ("FGW", 0.5),
@@ -570,7 +568,6 @@ def acc_dist_test(num_poses = 2):
     plt.show()
 
 def acc_rem_test(num_poses = 2):
-    import accuracy
     matchtypes_labels = [
         ("FGW", 0),
         ("FGW", 0.5),
@@ -610,7 +607,7 @@ def acc_rem_test(num_poses = 2):
 class LoadCloudPoint:
     def __init__(self, filepath=None, verbose = False):
         """
-        Load point cloud data from a CSV file. If no filepath is provided, randomly select one from 
+        Load point cloud data from a CSV file. If no filepath is provided, randomly select one from
         the datasets/csv_files directory.
         If missing_point is True, replace points with coordinates (*,0,0) with NaN.
         """
@@ -620,7 +617,7 @@ class LoadCloudPoint:
             filepath = np.random.choice(csv_list)
         else:
             pass
-        
+
         self.filepath = Path(filepath)
         self.point_cloud = pd.read_csv(filepath).to_numpy()
         self.verbose = verbose
@@ -658,14 +655,14 @@ class LoadCloudPoint:
         for index in indices:
             output.append(self.point_cloud[index].reshape(-1, 3))
         return output
-    
+
     def get_pointsclouds_random_range(self, range_length):
         start_idx = np.random.choice(self.point_cloud.shape[0] - range_length - 1)
         output = []
         for idx in np.arange(start_idx, start_idx + range_length):
             output.append(self.point_cloud[idx].reshape(-1, 3))
         return output
-    
+
     def get_t_distant_point_cloud(self, t=500):
         """
         Select two point clouds that are t frames apart.
@@ -686,7 +683,7 @@ class LoadCloudPoint:
             raise ValueError(f"Index out of bounds. There are {self.point_cloud.shape[0]} frames in this file.")
         pc = self.point_cloud[index].reshape(-1,3)
         return pc
-    
+
     def load_df(self, missing_point=False):
         """
         Load the DataFrame of the point cloud data from the CSV file.
